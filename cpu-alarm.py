@@ -43,10 +43,12 @@ config = read_config()
 TEMP_PATH = config.get("temp", "path", fallback="auto")
 if TEMP_PATH == "auto": TEMP_PATH = find_package_sensor()
 THRESHOLD = int(config.get("temp", "threshold", fallback=92000))
-pulse_length = int(config.get("alarm", "pulse_length", fallback=900))
-rest_length = int(config.get("alarm", "rest_length", fallback=100))
+PITCH = int(config.get("alarm", "pitch", fallback=750))
+PULSE_LEN = int(config.get("alarm", "pulse_len", fallback=900))
+DELAY_LEN = int(config.get("alarm", "rest_len", fallback=100))
 INTERVAL = int(config.get("temp", "interval", fallback=2000))
-if INTERVAL < pulse_length+rest_length: raise RuntimeError(f"interval of {INTERVAL} too short! Must be not be smaller then {pulse_length+rest_length}")
+PULSE_TOTAL = PULSE_LEN+DELAY_LEN
+if INTERVAL < PULSE_TOTAL: raise RuntimeError(f"interval of {INTERVAL} too short! Must be not be smaller then {PULSE_TOTAL}")
 print(f"Monitor started on {TEMP_PATH}")
 
 while True:
@@ -54,11 +56,11 @@ while True:
         temp = get_temp(TEMP_PATH)
         if temp >= THRESHOLD:
             print(f"Above Threshold: {temp/1000:.1f}°C")
-            i=0
-            while i in range(INTERVAL//(pulse_length+rest_length)):
-                os.system(f"beep -l 900")
-                time.sleep(0.1)
-                i+=1
+            time_delta = round(time.time() * 1000)
+            os.system(f"beep -f {PITCH} -r {INTERVAL//(PULSE_LEN+DELAY_LEN)} -d {DELAY_LEN} -l {PULSE_LEN}")
+            time_delta -= round(time.time() * 1000)
+            if time_delta < INTERVAL*0.90:
+                time.sleep((INTERVAL+time_delta)/1000)
         else:
             time.sleep(INTERVAL/1000)
     except Exception as e:
