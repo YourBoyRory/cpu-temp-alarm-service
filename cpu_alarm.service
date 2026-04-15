@@ -1,0 +1,13 @@
+[Unit]
+Description=CPU Temp monitor
+Wants=multi-user.target
+After=multi-user.target
+
+[Service]
+Type=simple
+User=deck
+ExecStart=/opt/steamdeck_hwmon_shim/run.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

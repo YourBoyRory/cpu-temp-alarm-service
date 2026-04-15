@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import time
 import os
 import configparser
@@ -50,7 +52,7 @@ def get_temp():
         return int(f.read().strip())
 
 def alarm():
-    os.system(f"beep -f 1000 -l {INTERVAL+100}")
+    os.system(f"beep -l {INTERVAL-100}")
 
 while True:
     try:
