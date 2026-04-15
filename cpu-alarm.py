@@ -43,7 +43,10 @@ config = read_config()
 TEMP_PATH = config.get("temp", "path", fallback="auto")
 if TEMP_PATH == "auto": TEMP_PATH = find_package_sensor()
 THRESHOLD = int(config.get("temp", "threshold", fallback=92000))
-INTERVAL = float(config.get("alarm", "interval", fallback=2000))
+pulse_length = int(config.get("alarm", "pulse_length", fallback=900))
+rest_length = int(config.get("alarm", "rest_length", fallback=100))
+INTERVAL = int(config.get("temp", "interval", fallback=2000))
+if INTERVAL < pulse_length+rest_length: raise RuntimeError(f"interval of {INTERVAL} too short! Must be not be smaller then {pulse_length+rest_length}")
 print(f"Monitor started on {TEMP_PATH}")
 
 while True:
@@ -52,9 +55,9 @@ while True:
         if temp >= THRESHOLD:
             print(f"Above Threshold: {temp/1000:.1f}°C")
             i=0
-            while i in range(int(INTERVAL)//1000):
+            while i in range(INTERVAL//(pulse_length+rest_length)):
                 os.system(f"beep -l 900")
-                time.sleep(100)
+                time.sleep(0.1)
                 i+=1
         else:
             time.sleep(INTERVAL/1000)
