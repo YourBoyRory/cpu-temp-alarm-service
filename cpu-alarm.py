@@ -44,7 +44,6 @@ TEMP_PATH = config.get("temp", "path", fallback="auto")
 if TEMP_PATH == "auto": TEMP_PATH = find_package_sensor()
 THRESHOLD = int(config.get("temp", "threshold", fallback=92000))
 INTERVAL = float(config.get("alarm", "interval", fallback=2000))
-SEPERATOR = 100
 print(f"Monitor started on {TEMP_PATH}")
 
 while True:
@@ -54,8 +53,8 @@ while True:
             print(f"Above Threshold: {temp/1000:.1f}°C")
             i=0
             while i in range(int(INTERVAL)//1000):
-                os.system(f"beep -l {INTERVAL-SEPERATOR}")
-                time.sleep(SEPERATOR/1000)
+                os.system(f"beep -l 900")
+                time.sleep(100)
                 i+=1
         else:
             time.sleep(INTERVAL/1000)
