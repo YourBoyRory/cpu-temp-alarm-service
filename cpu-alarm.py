@@ -25,7 +25,7 @@ def find_package_sensor():
     raise RuntimeError("Package id 0 sensor not found")
 
 def find_config():
-    sys_config_path = f"/etc/temp-alarm/config.ini"
+    sys_config_path = f"/etc/cpu-alarm-service/config.ini"
     cwd_path = os.path.join(os.getcwd(), "config.ini")
     if os.path.isfile(cwd_path):
         return cwd_path
