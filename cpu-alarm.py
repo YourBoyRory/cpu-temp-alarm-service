@@ -44,7 +44,7 @@ TEMP_PATH = config.get("temp", "path", fallback="auto")
 if TEMP_PATH == "auto": TEMP_PATH = find_package_sensor()
 THRESHOLD = int(config.get("temp", "threshold", fallback=92000))
 INTERVAL = float(config.get("alarm", "interval", fallback=2000))
-SEPERATOR = 100
+SEPERATOR = INTERVAL//4
 print(f"Monitor started on {TEMP_PATH}")
 
 while True:
