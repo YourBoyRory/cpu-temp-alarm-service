@@ -4,3 +4,7 @@ sudo chmod 644 /etc/cpu-alarm/
 
 sudo cp cpu-alarm.py  /usr/local/bin
 sudo chmod 755 /etc/cpu-alarm/
+
+sudo cp cpu_alarm.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable cpu_alarm
