@@ -32,7 +32,7 @@ def read_config():
         print(f"Using config: {cwd_path}")
     elif os.path.isfile(sys_config_path):
         config.read(sys_config_path)
-        print(f"Using config: {config_path}")
+        print(f"Using config: {sys_config_path}")
     return config
 
 def get_temp(probe):
