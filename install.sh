@@ -1,3 +1,5 @@
+set -eu
+
 sudo mkdir -p /etc/cpu-alarm-service/
 sudo cp config.ini /etc/cpu-alarm-service/
 sudo chmod 644 /etc/cpu-alarm-service/config.ini
