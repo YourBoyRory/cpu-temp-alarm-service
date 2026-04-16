@@ -56,18 +56,18 @@ PULSE_TOTAL = PULSE_LEN+DELAY_LEN
 def test():
     temp = get_temp(TEMP_PATH)
     print("\nCURRENT TEMPS:")
-    print(f"    {temp}/{THRESHOLD} ({temp/1000:.1f}°C/{THRESHOLD/1000:.1f}°C)")
+    print(f"    {temp/1000:.1f}°C / {THRESHOLD/1000:.1f}°C   ({temp}/{THRESHOLD})")
     above_threshold = temp >= THRESHOLD
-    print(f"    Above Threshold: {above_threshold}\n")
+    print(f"    Above Threshold:  {above_threshold}")
+    print(f"    Polling Interval: {INTERVAL} ms\n")
 
     print("ALARM OPTIONS:")
-    print(f"    pitch:           {PITCH}")
-    print(f"    pulse_len:       {PULSE_LEN}")
-    print(f"    rest_len:        {DELAY_LEN}")
-    print(f"    pulse_total:     {PULSE_TOTAL}")
-    print(f"    interval:        {INTERVAL}")
+    print(f"    pitch:            {PITCH} Hz")
+    print(f"    pulse_len:        {PULSE_LEN} ms")
+    print(f"    rest_len:         {DELAY_LEN} ms")
+    print(f"    pulse_total:      {PULSE_TOTAL} ms")
     valid_interval = PULSE_TOTAL <= INTERVAL
-    print(f"    Valid Interval:  {valid_interval}\n\n")
+    print(f"    Valid Interval:   {valid_interval}\n\n")
 
     i = 0
     test_count = 2
