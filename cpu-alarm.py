@@ -2,6 +2,7 @@
 
 import time
 import os
+import argparse
 import configparser
 
 def find_package_sensor():
@@ -39,6 +40,9 @@ def get_temp(probe):
     with open(probe, "r") as f:
         return int(f.read().strip())
 
+def alarm(pitch, interval, pulse_len, delay_len):
+    os.system(f"beep -f {pitch} -r {interval//(pulse_len+delay_len)} -d {delay_len} -l {pulse_len}")
+
 config = read_config()
 TEMP_PATH = config.get("temp", "path", fallback="auto")
 if TEMP_PATH == "auto": TEMP_PATH = find_package_sensor()
@@ -48,21 +52,59 @@ PULSE_LEN = int(config.get("alarm", "pulse_len", fallback=900))
 DELAY_LEN = int(config.get("alarm", "rest_len", fallback=100))
 INTERVAL = int(config.get("temp", "interval", fallback=2000))
 PULSE_TOTAL = PULSE_LEN+DELAY_LEN
-if INTERVAL < PULSE_TOTAL: raise RuntimeError(f"interval of {INTERVAL} too short! Must be not be smaller then {PULSE_TOTAL}")
-print(f"Monitor started on {TEMP_PATH}")
 
-while True:
-    try:
-        temp = get_temp(TEMP_PATH)
-        if temp >= THRESHOLD:
-            print(f"Above Threshold: {temp/1000:.1f}°C")
-            time_delta = round(time.time() * 1000)
-            os.system(f"beep -f {PITCH} -r {INTERVAL//(PULSE_LEN+DELAY_LEN)} -d {DELAY_LEN} -l {PULSE_LEN}")
-            time_delta -= round(time.time() * 1000)
-            if time_delta < INTERVAL*0.90:
-                time.sleep((INTERVAL+time_delta)/1000)
-        else:
-            time.sleep(INTERVAL/1000)
-    except Exception as e:
-        print(f"Error: {e}")
-        time.sleep(5)
+def test():
+    temp = get_temp(TEMP_PATH)
+    print("\nCURRENT TEMPS:")
+    print(f"    {temp}/{THRESHOLD} ({temp/1000:.1f}°C/{THRESHOLD/1000:.1f}°C)")
+    above_threshold = temp >= THRESHOLD
+    print(f"    Above Threshold: {above_threshold}\n")
+
+    print("ALARM OPTIONS:")
+    print(f"    pitch:           {PITCH}")
+    print(f"    pulse_len:       {PULSE_LEN}")
+    print(f"    rest_len:        {DELAY_LEN}")
+    print(f"    pulse_total:     {PULSE_TOTAL}")
+    print(f"    interval:        {INTERVAL}")
+    valid_interval = PULSE_TOTAL <= INTERVAL
+    print(f"    Valid Interval:  {valid_interval}\n\n")
+
+    i = 0
+    test_count = 2
+    while valid_interval and i in range(test_count):
+        time_delta = round(time.time() * 1000)
+        alarm(PITCH, INTERVAL, PULSE_LEN, DELAY_LEN)
+        time_delta -= round(time.time() * 1000)
+        i+=1
+        print(f"[{i}/{test_count}] {(INTERVAL+time_delta)/1000} seconds remain on interval")
+        if abs(time_delta) < INTERVAL*0.90 and i != test_count:
+            time.sleep(max((INTERVAL+time_delta)/1000, 0))
+
+
+def main():
+    if INTERVAL < PULSE_TOTAL: raise RuntimeError(f"interval of {INTERVAL} too short! Must be not be smaller then {PULSE_TOTAL}")
+    print(f"Monitor started on {TEMP_PATH}")
+    while True:
+        try:
+            temp = get_temp(TEMP_PATH)
+            if temp >= THRESHOLD:
+                print(f"Above Threshold: {temp/1000:.1f}°C")
+                time_delta = round(time.time() * 1000)
+                alarm(PITCH, INTERVAL, PULSE_LEN, DELAY_LEN)
+                time_delta -= round(time.time() * 1000)
+                if abs(time_delta) < INTERVAL*0.90:
+                    time.sleep(max((INTERVAL+time_delta)/1000, 0))
+            else:
+                time.sleep(INTERVAL/1000)
+        except Exception as e:
+            print(f"Error: {e}")
+            time.sleep(5)
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--test", action="store_true")
+args = parser.parse_args()
+
+if args.test:
+    test()
+else:
+    main()
